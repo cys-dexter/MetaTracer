@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ app_name }} - {{ app_subtitle }} | Digital Media Forensics</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-[#080b11] text-slate-100 antialiased selection:bg-amber-500/20 selection:text-amber-400">
+
+  <header class="border-b border-slate-800/80 bg-[#0c121e]/90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/static/img/logo.svg" alt="MetaTracer Logo" class="w-9 h-9">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg tracking-wider text-white">{{ app_name }}</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">v{{ app_version }}</span>
+          </div>
+          <p class="text-xs text-slate-400 tracking-wide">{{ app_subtitle }} // Deep Image Forensics</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-2 text-xs font-mono text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+          <div class="pulse-indicator bg-emerald-500"></div>
+          <span>ENGINE: ONLINE</span>
+        </div>
+
+        <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-xs font-medium text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-800 transition-all">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span class="font-mono">{{ github_user }}</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <section class="text-center space-y-3 max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+        DEFENSIVE DIGITAL IMAGE FORENSICS SUITE
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+        Deep Media Forensics & Tampering Radar
+      </h1>
+      <p class="text-slate-400 text-sm leading-relaxed">
+        Bypass social media compression stripping via Quantization Table (DQT) reverse engineering, inspect file anomalies with structural hex parsing, detect spliced regions using Error Level Analysis (ELA), and uncover hidden trailing payloads.
+      </p>
+    </section>
+
+    <section>
+      <div id="fileDropZone" class="cyber-panel relative p-8 sm:p-12 text-center cursor-pointer border-2 border-dashed border-slate-700/80 hover:border-cyan-500/50 transition-all group">
+        <div class="radar-scan"></div>
+        <input type="file" id="fileInput" class="hidden" accept=".jpg,.jpeg,.png,.webp,.gif,.tiff,.tif,.bmp">
+
+        <div class="space-y-4 max-w-md mx-auto">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:border-cyan-500/40 transition-transform">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+          </div>
+
+          <div>
+            <p class="text-base font-semibold text-white">Drag & drop forensic evidence image here</p>
+            <p class="text-xs text-slate-400 mt-1">or click anywhere to browse local filesystem</p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px] font-mono text-slate-500">
+            <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">JPEG / JPG</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">PNG</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">WEBP</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">TIFF</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">MAX {{ max_mb }}MB</span>
+          </div>
+
+          <div class="pt-4 flex items-center justify-center gap-3">
+            <button id="sampleBtn" type="button" class="px-4 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold tracking-wider font-mono transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+              </svg>
+              LOAD FORENSIC SPECIMEN
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="scanProgress" class="hidden mt-4 p-4 rounded-xl bg-slate-900/90 border border-cyan-800/50 flex items-center gap-3">
+        <div class="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+        <span id="scanStatusText" class="text-xs font-mono text-cyan-300 tracking-wide">Executing forensic pipeline...</span>
+      </div>
+    </section>
+
+    <div id="emptyState" class="cyber-panel p-12 text-center text-slate-500">
+      <div class="max-w-md mx-auto space-y-2">
+        <p class="font-mono text-xs uppercase tracking-wider text-slate-400">Forensic Analyzer Idle</p>
+        <p class="text-sm">Upload an image file or click <strong class="text-amber-400">Load Forensic Specimen</strong> to initiate deep inspection across all forensic layers.</p>
+      </div>
+    </div>
+
+    <div id="resultsContainer" class="hidden space-y-8">
+
+      <section class="cyber-panel p-6 bg-gradient-to-r from-[#0c121e] via-[#101726] to-[#0c121e]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          
+          <div class="lg:col-span-4 flex items-center gap-5 border-b lg:border-b-0 lg:border-r border-slate-800 pb-6 lg:pb-0 lg:pr-6">
+            <div class="relative w-24 h-24 flex-shrink-0 flex items-center justify-center rounded-2xl bg-slate-950 border border-slate-800">
+              <div class="text-center">
+                <span id="hudRiskScore" class="text-2xl font-black font-mono tracking-tight text-white">0/100</span>
+                <span class="block text-[10px] font-mono text-slate-500 uppercase">Risk Index</span>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span id="hudThreatBadge" class="badge badge-emerald">LOW / PRISTINE</span>
+              </div>
+              <p id="hudVerdictText" class="text-xs text-slate-300 leading-tight">No anomalies detected.</p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+            <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase">File Name</span>
+              <span id="hudFileName" class="text-slate-200 font-semibold truncate block mt-0.5">N/A</span>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase">Format</span>
+              <span id="hudFileFormat" class="text-cyan-400 font-bold block mt-0.5">JPEG</span>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase">Payload Size</span>
+              <span id="hudFileSize" class="text-slate-200 font-semibold block mt-0.5">0 KB</span>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase">Analysis Time</span>
+              <span id="hudLatency" class="text-amber-400 font-semibold block mt-0.5">0 ms</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] font-mono text-slate-400">
+          <div class="truncate"><span class="text-slate-500 font-bold">MD5:</span> <span id="hudMd5" class="select-all text-slate-300"></span></div>
+          <div class="truncate"><span class="text-slate-500 font-bold">SHA1:</span> <span id="hudSha1" class="select-all text-slate-300"></span></div>
+          <div class="truncate"><span class="text-slate-500 font-bold">SHA256:</span> <span id="hudSha256" class="select-all text-slate-300"></span></div>
+        </div>
+      </section>
+
+      <section class="cyber-panel">
+        <div class="border-b border-slate-800 flex items-center justify-between overflow-x-auto px-2">
+          <div class="flex items-center gap-1">
+            <button class="nav-tab-btn active" data-tab="tab-overview">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              <span>Overview</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-quantization">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+              <span>DQT Compression</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-ela">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Error Level (ELA)</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-payload">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>Trailing Payload</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-geospatial">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span>Geospatial Fallback</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-hex">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              <span>Structural Hex</span>
+            </button>
+            <button class="nav-tab-btn" data-tab="tab-metadata">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+              <span>Raw EXIF / XMP</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 pr-2">
+            <button id="exportJsonBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              JSON
+            </button>
+            <button id="exportPrintBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              PRINT
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6">
+
+          <div id="tab-overview" class="tab-content-panel space-y-6">
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-slate-400">COMPREHENSIVE TAMPERING THREAT GAUGE</span>
+                <span class="text-slate-300">Aggregated Multi-Vector Score</span>
+              </div>
+              <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                <div id="overviewScoreBar" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width: 10%;"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="metric-card">
+                <span class="text-slate-500 text-xs font-mono uppercase block">ELA Tampering Likelihood</span>
+                <span id="summaryElaScore" class="text-2xl font-bold font-mono text-cyan-400 mt-1 block">0%</span>
+                <p class="text-xs text-slate-400 mt-2">Error level variance between native and recompressed surface</p>
+              </div>
+
+              <div class="metric-card">
+                <span class="text-slate-500 text-xs font-mono uppercase block">DQT Compression Profile</span>
+                <span id="summaryDqtFingerprint" class="text-base font-bold font-mono text-amber-400 mt-1 block truncate">Generic IJG</span>
+                <p class="text-xs text-slate-400 mt-2">Identified hardware ISP or social media compression signature</p>
+              </div>
+
+              <div class="metric-card">
+                <span class="text-slate-500 text-xs font-mono uppercase block">Hidden Trailing Payload</span>
+                <span id="summaryPayloadThreat" class="text-base font-bold font-mono text-slate-200 mt-1 block truncate">None</span>
+                <p class="text-xs text-slate-400 mt-2">Steganographic archives or trailing data appended post-EOF</p>
+              </div>
+
+              <div class="metric-card">
+                <span class="text-slate-500 text-xs font-mono uppercase block">Geospatial Telemetry</span>
+                <span id="summaryGeoMode" class="text-base font-bold font-mono text-emerald-400 mt-1 block truncate">Smart Fallback</span>
+                <p class="text-xs text-slate-400 mt-2">Satellite GPS fix or environmental solar/photometric model</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-quantization" class="tab-content-panel hidden space-y-6">
+            <div id="quantNonJpegMsg" class="hidden p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-400 font-mono">
+              <p id="quantNonJpegDetail">Non-JPEG format. Quantization tables are specific to DCT-based JPEG containers.</p>
+            </div>
+
+            <div id="quantContentGrid" class="space-y-6">
+              <div class="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                  <span class="badge badge-amber">EXIF Stripping Bypass Engine</span>
+                  <p id="quantBypassVerdict" class="text-sm text-slate-200 mt-1 font-mono">Quantization matrix successfully extracted directly from binary DQT segments.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="text-right">
+                    <span id="quantEstQf" class="text-xl font-bold font-mono text-amber-400 block">QF ~ 90</span>
+                    <span id="quantMatchConf" class="text-[11px] font-mono text-slate-400">95% Match</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+                  <span class="text-xs font-mono text-slate-400 uppercase">Encoder / Platform Fingerprint</span>
+                  <p id="quantFingerprintName" class="text-base font-bold text-cyan-400">Adobe Photoshop Save For Web</p>
+                  <p id="quantFingerprintCategory" class="text-xs text-slate-400 font-mono">Desktop Graphic Software</p>
+                  <p id="quantFingerprintDesc" class="text-xs text-slate-400 mt-1 leading-relaxed">Quantization curves closely match proprietary encoder matrices.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+                  <span class="text-xs font-mono text-slate-400 uppercase">Double Compression Analysis</span>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-300">Recompression Ghost Probability:</span>
+                    <span id="quantDoubleCompProb" class="text-base font-bold font-mono text-emerald-400">12%</span>
+                  </div>
+                  <p class="text-xs text-slate-400 leading-relaxed">Evaluates coefficient factor divisibility and periodic rounding artifacts indicative of multiple save cycles.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Luminance Matrix (Y) // 8x8</span>
+                    <span class="text-[11px] font-mono text-slate-500">Table ID 0</span>
+                  </div>
+                  <div id="matrixGridLuminance" class="matrix-grid"></div>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Chrominance Matrix (Cb/Cr) // 8x8</span>
+                    <span class="text-[11px] font-mono text-slate-500">Table ID 1</span>
+                  </div>
+                  <div id="matrixGridChrominance" class="matrix-grid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-ela" class="tab-content-panel hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800">
+              <div class="flex items-center gap-4">
+                <div class="text-xs font-mono">
+                  <span class="text-slate-400 block">TAMPERING SCORE</span>
+                  <span id="elaScoreDisplay" class="text-xl font-bold text-cyan-400">0%</span>
+                </div>
+                <div class="border-l border-slate-800 pl-4">
+                  <p id="elaVerdictDisplay" class="text-xs text-slate-300 font-mono">Evaluating error level distribution...</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+                  <input type="radio" name="elaViewMode" value="ela" checked class="text-amber-500 focus:ring-0">
+                  <span>Amplified ELA</span>
+                </label>
+                <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+                  <input type="radio" name="elaViewMode" value="heatmap" class="text-amber-500 focus:ring-0">
+                  <span>Thermal Heatmap</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="elaComparisonContainer" class="comparison-container">
+              <img class="comparison-image comparison-before" src="" alt="Original Specimen">
+              <img class="comparison-image comparison-after" src="" alt="Error Level Analysis Map">
+              <div class="comparison-slider-handle" style="left: 50%;">
+                <div class="comparison-slider-button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block">Mean Error</span>
+                <span id="elaMeanError" class="text-slate-200 font-bold mt-1 block">0.0</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block">Max Error</span>
+                <span id="elaMaxError" class="text-slate-200 font-bold mt-1 block">0.0</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block">Std Deviation</span>
+                <span id="elaStdError" class="text-slate-200 font-bold mt-1 block">0.0</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block">High-Variance Ratio</span>
+                <span id="elaHighRatio" class="text-amber-400 font-bold mt-1 block">0.0%</span>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950/40 border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400">Reference QF:</span>
+                  <input id="elaQualityInput" type="number" min="50" max="100" value="95" class="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-center">
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400">Scale Factor:</span>
+                  <input id="elaScaleInput" type="number" min="5" max="40" value="15" class="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-700 text-white text-center">
+                </div>
+              </div>
+              <button id="reanalyzeElaBtn" class="px-3 py-1.5 rounded-lg bg-cyan-950/60 text-cyan-300 border border-cyan-800/80 hover:bg-cyan-900/60 transition-all">
+                Recompute ELA Parameters
+              </button>
+            </div>
+          </div>
+
+          <div id="tab-payload" class="tab-content-panel hidden space-y-6">
+            <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span id="payloadStatusBadge" class="badge badge-emerald">CLEAN EOF</span>
+                  <span class="text-xs text-slate-400 font-mono">EOF Marker Validation</span>
+                </div>
+                <p class="text-xs text-slate-300 font-mono mt-1">Detects trailing bytes injected past official container markers (e.g. JPEG FF D9, PNG IEND).</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-500 font-mono uppercase block">Threat Level</span>
+                <span id="payloadThreatLevel" class="text-lg font-bold font-mono text-emerald-400">LOW</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Payload Size</span>
+                <span id="payloadSizeFormatted" class="text-slate-200 font-bold mt-1 block">0 bytes</span>
+                <span id="payloadRatio" class="text-[11px] text-slate-500 block mt-0.5">0% of file</span>
+              </div>
+
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Expected EOF Offset</span>
+                <span id="payloadEofOffset" class="text-cyan-400 font-bold mt-1 block">N/A</span>
+                <span class="text-[11px] text-slate-500 block mt-0.5">Terminal Marker Position</span>
+              </div>
+
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-500 uppercase">Shannon Entropy</span>
+                  <span id="payloadEntropyValue" class="text-amber-400 font-bold">0.0 / 8.0</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                  <div id="payloadEntropyBar" class="h-full bg-cyan-500 rounded-full" style="width: 0%;"></div>
+                </div>
+                <span id="payloadEntropyAssess" class="text-[10px] text-slate-400 block truncate">None</span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Known Signatures in Trailing Stream</span>
+              <div id="payloadSignaturesList" class="space-y-2"></div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Extracted ASCII Strings (>= 4 chars)</span>
+              <div id="payloadStringsList" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-3 rounded-xl bg-slate-950/60 border border-slate-800"></div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Trailing Payload Hex Dump Preview</span>
+              <div id="payloadHexDump" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 max-h-56 overflow-y-auto"></div>
+            </div>
+          </div>
+
+          <div id="tab-geospatial" class="tab-content-panel hidden space-y-6">
+            <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span id="geoModeBadge" class="badge badge-emerald">EXIF DIRECT FIX</span>
+                  <span id="geoSourceType" class="text-xs text-slate-300 font-mono">Hardware GPS Receiver Satellite Fix</span>
+                </div>
+                <p id="geoNotes" class="text-xs text-slate-400 font-mono mt-1">Analyzing coordinates and solar geometry...</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-500 font-mono uppercase block">Confidence Score</span>
+                <span id="geoConfidence" class="text-lg font-bold font-mono text-cyan-400">98%</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div class="lg:col-span-8">
+                <div id="map"></div>
+              </div>
+
+              <div class="lg:col-span-4 space-y-4">
+                <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3 text-xs font-mono">
+                  <span class="text-slate-400 font-bold uppercase block border-b border-slate-800 pb-2">Geographic Coordinates</span>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Position:</span>
+                    <span id="geoCoordinates" class="text-white font-bold select-all">N/A</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Altitude:</span>
+                    <span id="geoAltitude" class="text-slate-300">N/A</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Uncertainty Radius:</span>
+                    <span id="geoRadius" class="text-amber-400">± 0.05 km</span>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3 text-xs font-mono">
+                  <span class="text-slate-400 font-bold uppercase block border-b border-slate-800 pb-2">Photometric & Solar Telemetry</span>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Exposure Value (EV100):</span>
+                    <span id="geoEv100" class="text-cyan-400 font-bold">N/A</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Color Temperature:</span>
+                    <span id="geoCct" class="text-amber-400 font-bold">5500 K</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Solar Phase:</span>
+                    <span id="geoSolarPhase" class="text-slate-200">Midday Sun</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Sun Elevation:</span>
+                    <span id="geoSunElevation" class="text-slate-300">High Angle (45°-80°)</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Environment Archetype:</span>
+                    <span id="geoArchetype" class="text-emerald-400 font-bold">Direct Daylight</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-slate-500">Timezone Offset:</span>
+                    <span id="geoTimezone" class="text-slate-300">None</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-hex" class="tab-content-panel hidden space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Structural Integrity</span>
+                <span id="hexIntegrityScore" class="text-xl font-bold font-mono text-emerald-400 mt-1 block">100%</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Segments Parsed</span>
+                <span id="hexSegmentCount" class="text-xl font-bold font-mono text-cyan-400 mt-1 block">0</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Marker Sequence</span>
+                <span id="hexEofStatus" class="badge badge-emerald mt-1">VALID TERMINATOR</span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Container Integrity Signals</span>
+              <div id="hexAnomaliesList" class="space-y-2"></div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Container Segment Map</span>
+              <div id="hexSegmentsTableContainer" class="p-3 rounded-xl bg-slate-950/60 border border-slate-800"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Header Hex Dump (First 128 Bytes)</span>
+                <div id="hexHeaderDump" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 max-h-56 overflow-y-auto"></div>
+              </div>
+
+              <div class="space-y-2">
+                <span class="text-xs font-mono text-slate-300 font-semibold uppercase">Trailer Hex Dump (Last 128 Bytes)</span>
+                <div id="hexTailDump" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 max-h-56 overflow-y-auto"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-metadata" class="tab-content-panel hidden space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Camera Make & Model</span>
+                <span id="metaCamMake" class="text-slate-200 font-bold mt-1 block">N/A</span>
+                <span id="metaCamModel" class="text-slate-400 block text-[11px]">N/A</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Lens Specification</span>
+                <span id="metaCamLens" class="text-slate-200 font-bold mt-1 block truncate">N/A</span>
+                <span id="metaCamSerial" class="text-slate-400 block text-[11px] truncate">SN: N/A</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Timestamps</span>
+                <span id="metaDateOriginal" class="text-cyan-400 font-bold mt-1 block">N/A</span>
+                <span id="metaDateMod" class="text-slate-400 block text-[11px]">Mod: N/A</span>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                <span class="text-slate-500 block uppercase">Exposure Telemetry</span>
+                <span id="metaExpParams" class="text-amber-400 font-bold mt-1 block">N/A</span>
+                <span id="metaIccStatus" class="badge badge-cyan mt-1">EMBEDDED PROFILE</span>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-mono text-slate-300 font-semibold uppercase">EXIF Sub-Directory Tags</span>
+                <input id="exifSearchInput" type="text" placeholder="Search EXIF tag or value..." class="px-3 py-1 text-xs font-mono bg-slate-900 border border-slate-800 rounded-lg text-white w-64 focus:outline-none focus:border-cyan-500">
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 max-h-96 overflow-y-auto">
+                <table class="w-full text-left text-xs font-mono">
+                  <thead class="text-slate-400 bg-slate-900/60 uppercase border-b border-slate-800 sticky top-0">
+                    <tr>
+                      <th class="py-2 px-3 w-1/3">Tag Identifier</th>
+                      <th class="py-2 px-3">Decoded Forensic Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="exifRawTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+                    <tr><td colspan="2" class="py-4 text-center text-slate-500">No EXIF directory entries loaded.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-slate-800/80 bg-[#090d16] py-6 text-xs text-slate-500 font-mono">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-slate-300 font-semibold">{{ app_name }}</span>
+        <span>&copy; 2026 Developed by {{ author }} ({{ github_user }})</span>
+      </div>
+      <div>
+        <span>Cybersecurity Student Forensic Engineering Capstone</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/ela_slider.js"></script>
+  <script src="/static/js/hex_viewer.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
