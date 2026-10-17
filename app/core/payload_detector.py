@@ -30,20 +30,27 @@ def calculate_shannon_entropy(data: bytes) -> float:
         entropy -= p * math.log2(p)
     return round(entropy, 4)
 
-def extract_ascii_strings(data: bytes, min_length: int = 4, max_count: int = 20) -> List[str]:
+def extract_ascii_strings(data: bytes, min_length: int = 3, max_count: int = 100) -> List[str]:
+    # فحص كامل البيانات بدقة لاستخراج أي كلمات سر أو نصوص مخفية بدون قيود طول المسافة
     pattern = re.compile(rb"[\x20-\x7E]{" + str(min_length).encode() + rb",}")
-    matches = pattern.findall(data[:4096])
+    matches = pattern.findall(data)
     strings = []
-    for m in matches[:max_count]:
+    seen = set()
+    for m in matches:
         try:
-            strings.append(m.decode("ascii"))
-        except UnicodeDecodeError:
+            s = m.decode("ascii", errors="ignore").strip()
+            if s and s not in seen and len(s) >= min_length:
+                seen.add(s)
+                strings.append(s)
+                if len(strings) >= max_count:
+                    break
+        except Exception:
             pass
     return strings
 
 def detect_payload_signatures(payload_data: bytes) -> List[Dict[str, str]]:
     detected = []
-    check_window = payload_data[:1024]
+    check_window = payload_data[:2048]
     for item in KNOWN_SIGNATURES:
         pos = check_window.find(item["sig"])
         if pos != -1:
@@ -86,6 +93,9 @@ def inspect_trailing_payload(binary_data: bytes, file_format: str) -> Dict[str, 
     extracted_strings = []
     hex_preview = []
 
+    # فحص شامل إضافي لبرمجيات وسلاسل النصوص في كامل الملف في حال وجود نصوص مخفية مدمجة
+    global_strings = extract_ascii_strings(binary_data, min_length=4, max_count=30)
+
     if trailer_offset != -1 and trailer_offset < file_size:
         payload_data = binary_data[trailer_offset:]
         payload_size = len(payload_data)
@@ -103,7 +113,7 @@ def inspect_trailing_payload(binary_data: bytes, file_format: str) -> Dict[str, 
                 entropy_category = "Low (Repetitive patterns, null-byte padding, or sparse data)"
 
             signatures_found = detect_payload_signatures(payload_data)
-            extracted_strings = extract_ascii_strings(payload_data)
+            extracted_strings = extract_ascii_strings(payload_data, min_length=3, max_count=50)
 
             sample = payload_data[:256]
             for i in range(0, len(sample), 16):
@@ -117,11 +127,14 @@ def inspect_trailing_payload(binary_data: bytes, file_format: str) -> Dict[str, 
                     "ascii": ascii_str
                 })
 
+    # دمج النصوص المستخرجة العامة مع النصوص الموجودة في الـ Payload لضمان عدم ضياع أي كلمة سر مخفية
+    combined_strings = list(dict.fromkeys(extracted_strings + global_strings))
+
     threat_level = "LOW"
     if has_payload:
         if any(sig["category"] in ("Executable", "Script") for sig in signatures_found) or entropy > 7.3:
             threat_level = "CRITICAL"
-        elif signatures_found or payload_size > 1024:
+        elif signatures_found or payload_size > 512:
             threat_level = "ELEVATED"
         else:
             threat_level = "MEDIUM"
@@ -137,6 +150,6 @@ def inspect_trailing_payload(binary_data: bytes, file_format: str) -> Dict[str, 
         "shannon_entropy": entropy,
         "entropy_assessment": entropy_category,
         "detected_signatures": signatures_found,
-        "extracted_strings": extracted_strings,
+        "extracted_strings": combined_strings,
         "hex_preview": hex_preview
     }
