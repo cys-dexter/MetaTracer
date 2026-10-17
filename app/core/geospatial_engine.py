@@ -693,6 +693,28 @@ def reliability_class(conf: float) -> str:
     return "SPECULATIVE"
 
 
+def build_map_hint(
+    has_coords: bool,
+    lat: Optional[float],
+    lon: Optional[float],
+    radius_km: float,
+    direct: bool = False,
+) -> Dict[str, Any]:
+    if not has_coords or lat is None or lon is None:
+        return {"show": False, "latitude": None, "longitude": None, "radius_km": 0.0, "zoom_hint": None}
+    if direct:
+        zoom = 13
+    elif radius_km > 1500:
+        zoom = 3
+    elif radius_km > 500:
+        zoom = 5
+    elif radius_km > 100:
+        zoom = 7
+    else:
+        zoom = 10
+    return {"show": True, "latitude": lat, "longitude": lon, "radius_km": radius_km, "zoom_hint": zoom}
+
+
 def resolve_geospatial_telemetry(metadata: Dict[str, Any], image_bytes: bytes) -> Dict[str, Any]:
     gps_info = metadata.get("gps", {}) or {}
     if gps_info.get("has_gps") and gps_info.get("latitude") is not None and gps_info.get("longitude") is not None:
@@ -710,7 +732,10 @@ def resolve_geospatial_telemetry(metadata: Dict[str, Any], image_bytes: bytes) -
             "confidence_score": 98.5,
             "reliability": "HIGH",
             "source_type": "Hardware GPS Receiver Satellite Fix",
+            "map": build_map_hint(True, lat, lon, 0.05, True),
+            "alternative_candidates": [],
             "telemetry": {
+                "geographic_region": "GPS Fix (EXIF)",
                 "coordinate_display": f"{abs(lat):.4f}° {'N' if lat >= 0 else 'S'}, {abs(lon):.4f}° {'E' if lon >= 0 else 'W'}",
                 "timestamp_utc": gps_info.get("timestamp") or "N/A",
                 "altitude_display": f"{alt:.1f} m" if alt is not None else "Sea level / Unspecified",
@@ -749,23 +774,23 @@ def resolve_geospatial_telemetry(metadata: Dict[str, Any], image_bytes: bytes) -
 
     notes: List[str] = []
     if fused:
-        for c in fused["group"]:
-            for flag in c["flags"]:
-                if flag.startswith(("contradicts", "climate_mismatch", "sun_below")):
-                    notes.append(f"{c['label']}: {flag.replace('_', ' ')}")
-        strongest = fused["group"][0]["source"] if fused["group"] else "n/a"
-        notes.insert(0, f"Estimate fused from {len(fused['group'])} supporting evidence item(s): {', '.join(fused['sources'])}.")
+        notes.append(f"Estimate fused from {len(fused['group'])} supporting evidence item(s): {', '.join(fused['sources'])}.")
         if fused["confidence"] < 0.30:
             notes.append("Evidence is weak; treat the result as a broad regional prior, not a location.")
     else:
         notes.append("No textual, temporal, or pixel-derived regional evidence was available.")
 
-    if capture_dt is not None and offset_min is not None and scene.get("available"):
-        elev_hint = None
-        if sun_at_estimate is not None:
-            elev_hint = sun_at_estimate
-        if elev_hint is not None and elev_hint < -6.0 and luminance > 140.0 and not flash_fired:
-            notes.append("Timestamp implies darkness at the estimated location, but the pixels are bright: timestamp or location may be unreliable.")
+    seen_flags = set()
+    for c in cands:
+        for flag in c["flags"]:
+            if flag.startswith(("contradicts", "climate_mismatch", "sun_below")):
+                key = (c["label"], flag)
+                if key not in seen_flags:
+                    seen_flags.add(key)
+                    notes.append(f"{c['label']}: {flag.replace('_', ' ')}.")
+
+    if sun_at_estimate is not None and sun_at_estimate < -6.0 and luminance > 140.0 and not flash_fired:
+        notes.append("Timestamp implies darkness at the estimated location, but the pixels are bright: timestamp or location may be unreliable.")
 
     has_coords = fused is not None
     lat_v = fused["lat"] if has_coords else None
@@ -831,6 +856,7 @@ def resolve_geospatial_telemetry(metadata: Dict[str, Any], image_bytes: bytes) -
             "pixel_scene_profile": scene,
             "pixel_climate_hints": scene.get("climates", []) + scene.get("tags", []),
         },
+        "map": build_map_hint(has_coords, lat_v, lon_v, fused["radius"] if has_coords else 0.0),
         "alternative_candidates": alternatives,
         "evidence": evidence,
         "forensic_notes": " ".join(notes),
