@@ -70,6 +70,7 @@ templates_path = BASE_DIR / "app" / "templates"
 
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 templates = Jinja2Templates(directory=str(templates_path))
+templates.env.cache = None  # تعطيل التخزين المؤقت لتجنب مشاكل Tuple/Dict مع Python الحديثة
 
 def calculate_overall_risk(
     ela_score: float,
