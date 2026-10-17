@@ -70,7 +70,29 @@ templates_path = BASE_DIR / "app" / "templates"
 
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 templates = Jinja2Templates(directory=str(templates_path))
-templates.env.cache = None  # تعطيل التخزين المؤقت لتجنب مشاكل Tuple/Dict مع Python الحديثة
+
+# حل جذري وآمن لمشكلة مفاتيح التخزين المؤقت غير القابلة للحساب في Jinja2 مع Python الحديثة
+class SafeJinjaCache(dict):
+    def _safe_key(self, key):
+        try:
+            hash(key)
+            return key
+        except TypeError:
+            return repr(key)
+    def __getitem__(self, key):
+        return super().__getitem__(self._safe_key(key))
+    def __setitem__(self, key, value):
+        super().__setitem__(self._safe_key(key), value)
+    def __delitem__(self, key):
+        super().__delitem__(self._safe_key(key))
+    def __contains__(self, key):
+        return super().__contains__(self._safe_key(key))
+    def get(self, key, default=None):
+        return super().get(self._safe_key(key), default)
+    def setdefault(self, key, default=None):
+        return super().setdefault(self._safe_key(key), default)
+
+templates.env.cache = SafeJinjaCache()
 
 def calculate_overall_risk(
     ela_score: float,
