@@ -70,7 +70,6 @@ templates_path = BASE_DIR / "app" / "templates"
 
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 templates = Jinja2Templates(directory=str(templates_path))
-templates.env.cache = None  # تعطيل التخزين المؤقت لتجنب مشاكل مفاتيح بايثون الحديثة
 
 def calculate_overall_risk(
     ela_score: float,
@@ -117,20 +116,19 @@ def calculate_overall_risk(
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "index.html",
-        {
-            "request": request,
-            "app_name": APP_NAME,
-            "app_subtitle": APP_SUBTITLE,
-            "app_version": APP_VERSION,
-            "author": AUTHOR,
-            "github_user": GITHUB_USER,
-            "github_url": GITHUB_URL,
-            "max_mb": MAX_CONTENT_LENGTH // (1024 * 1024),
-        },
-    )
+    # استخدام Render المباشر لتجاوز عيوب الـ Cache مع Python 3.14
+    template = templates.get_template("index.html")
+    html_content = template.render({
+        "request": request,
+        "app_name": APP_NAME,
+        "app_subtitle": APP_SUBTITLE,
+        "app_version": APP_VERSION,
+        "author": AUTHOR,
+        "github_user": GITHUB_USER,
+        "github_url": GITHUB_URL,
+        "max_mb": MAX_CONTENT_LENGTH // (1024 * 1024),
+    })
+    return HTMLResponse(content=html_content)
 
 @app.get("/api/health")
 async def health_check():
@@ -232,7 +230,7 @@ async def get_forensic_sample():
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
     return JSONResponse({
-        "success": True,
+        "success": "True",
         "filename": "sample_forensic_evidence.jpg",
         "detected_format": "JPEG",
         "file_size": len(test_bytes),
